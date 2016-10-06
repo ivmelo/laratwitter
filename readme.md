@@ -1,4 +1,5 @@
 # laratwitter
+
 Aplicativo de exemplo para o mini curso de Laravel do LAIS-HUOL.
 
 Basicamente, um mini clone do twitter com funcionalidades básicas (logar, registrar, postar, seguir...).
@@ -9,15 +10,17 @@ Para referência, abaixo estão os passos seguidos para o desenvolvimento do app
 
 ## Criação do Projeto e Configuração Inicial
 
+```bash
+$ homestead up
+$ homestead ssh
+$ cd Code
+$ laravel new twitter
 ```
-homestead up
-homestead ssh
-cd Code
-laravel new twitter
-```
-O laravel vai criar o proketo, instalar as dependências e configurar usando o arquivo .env
+
+O laravel vai criar o projeto, instalar as dependências e configurar usando o arquivo .env
 
 - editar para apontar para o app
+
 ```
 ~/homestead/Homestead.yaml
 /etc/routes
@@ -25,12 +28,13 @@ O laravel vai criar o proketo, instalar as dependências e configurar usando o a
 
 - criar banco de dados laratwitter
 - editar e mostrar arquivo .env
-- adicionar creadenciais do banco de dados ao .env
-
+- adicionar credenciais do banco de dados ao .env
 - rodar homestear provision para atualizar as configurações
+
+```bash
+$ homestead provision
 ```
-homestead provision
-```
+
 - visitar laratwitter.app e ver o resultado
 - mostrar o arquivo de rotas e fazer alguma alteração para mostrar resultado
 
@@ -41,64 +45,77 @@ homestead provision
 | id             | id         | id               |
 | name           | user_id    | user_id          |
 | username       | content    | follower_user_id |
-| email          | created_at | created_at       |
-| password       | updated_at | updated_at       |
+| email          |            |                  |
+| password       |            |                  |
 | remember_token |            |                  |
-| created_at     |            |                  |
-| updated_at     |            |                  |
+|                |            |                  |
+|                |            |                  |
 
 
 ## Models - User e Post
 
 - mostrar model user e criar o de post
-User (already present)
-Post
+
+    User (already present)
+    Post
 
 - adicionar username na migration users
-```
+
+```php
 $table->string('username')->unique();
 ```
+
 - adicionar ```username``` ao array fillable no model User
 
 
 - criar model Post e migration
-```
-php artisan make:model Post --migration
+
+```bash
+$ php artisan make:model Post --migration
 ```
 
 - adicionar colunas content e user_id na migration
-```
+
+```php
 $table->text('content');
 $table->integer('user_id');
 ```
 
 - adicionar content e user_id ao fillable do Post
-```
+
+```php
 protected $fillable = ['content', 'user_id'];
 ```
 
 - migrar
-```
-php artisan migrate
+
+```bash
+$ php artisan migrate
 ```
 
 ## Autenticação
+
 - executar comando de scaffold de autenticação
-```
-php artisan make:auth
+
+```bash
+$ php artisan make:auth
 ```
 
 - adicionar validação de username ao RegisterController
-```
+
+```php
 'username' => 'required|min:5|unique:users'
 ```
+
 - adicionar username ao User::create do RegisterControler
-```
+
+```php
 'username' => $data['username']
 ```
 
 - adicionar username ao register.blade.php
-```
+
+```blade
 <div class="form-group{{ $errors->has('username') ? ' has-error' : '' }}">
     <label for="username" class="col-md-4 control-label">Username</label>
 
@@ -119,18 +136,22 @@ php artisan make:auth
 - alterar nome do app (padrão é 'Laravel')
 
 ## O controller PostController
+
 - criar PostController
-```
-php artisan make:controller PostController --resource
+
+```bash
+$ php artisan make:controller PostController --resource
 ```
 
 - mostrar estrutura do controller e retornar todos os posts
+    - explicar o uso de `--resource`
 - alterar o controller para pegar todos os posts e mostrar na tela
-```
-use App\Post;
-```
 
-```
+```php
+use App\Post;
+
+//...
+
 $posts = Post::all();
 return response()->json($posts, 200);
 ```
@@ -138,45 +159,53 @@ return response()->json($posts, 200);
 ## Rotas
 
 - adicionar uma rota que mostre os posts ao arquivo routes/web.php
-```
+
+```php
 Route::get('/post', 'PostController@index');
 ```
 
 ## Tinker
+
 - breve explicação sobre o tinker
 - criar dois posts usando o tinker
+
+```bash
+$ php artisan tinker
+
+$ $post = new App\Post();
+$ $post->content = 'Participando do tutorial de Laravel do LAIS HUOL';
+$ $post->user_id = 1;
+$ $post->save();
+
+$ $post2 = new App\Post;
+$ $post2->content = 'Quero cafeeeeeeeeeeee...';
+$ $post2->user_id = 1;
+$ $post2->save();
+
+$ App\Post::all();
+
+$ exit
 ```
-php artisan tinker
 
-$post = new App\Post();
-$post->content = 'Participando do tutorial de Laravel do LAIS HUOL';
-$post->user_id = 1;
-$post->save();
-
-$post2 = new App\Post;
-$post2->content = 'Quero cafeeeeeeeeeeee...';
-$post2->user_id = 1;
-$post2->save();
-
-App\Post::all();
-
-exit
-```
 - mostrar posts sendo retornados no /post
 
 ## Segurança
-- adicionar middleware auth ao ```__construct()``` do PostController, e dar uma breve explicação
-```
+
+- adicionar middleware auth ao `__construct()` do PostController, e dar uma breve explicação
+
+```php
 public function __construct() {
     $this->middleware('auth');
 }
 ```
 
 ## Views
+
 - mostrar layouts/app.blade.php e explicar
 - criar diretório views/posts
 - arquivo views/posts/index.blade.php
-```
+
+```blade
 @extends('layouts.app')
 
 @section('content')
@@ -225,13 +254,15 @@ public function __construct() {
 ```
 
 - alterar o index do PostController para retornar a view
-```
+
+```php
 // return response()->json($posts, 200);
 return view('posts.index', compact('posts'));
 ```
 
 - adicionar acessor no model User para pegar a imagem do gravatar
-```
+
+```php
 /**
  * Get the user's gravatar picture url.
  *
@@ -245,39 +276,44 @@ public function getGravatarUrlAttribute()
 ```
 
 ## Relacionamentos (ORM)
-- mostrar relacionamentos user <-> post e adicionar no model user
-```
+
+- mostrar relacionamentos `user <-> post` (1-n) e adicionar no model user
+
+```php
 public function posts() {
     return $this->hasMany('App\Post');
 }
 ```
 
 - adicionar no model post
-```
+
+```php
 public function user() {
     return $this->belongsTo('App\User');
 }
 ```
 
 ## Formulários, Validação, ORM
+
 - criar rota POST para /post
-```
+
+```php
 Route::post('/post', 'PostController@store');
 ```
 
-- adicionar validacao ao controller
-```
+- adicionar validação ao controller
+
+```php
 $this->validate($request, [
     'content' => 'required|min:3|max:140', // limite de 140 caracteres
 ]);
 ```
 
 - criar e armazenar tweet
-```
-use Auth;
-```
 
-```
+```php
+use Auth;
+
 $post = new Post();
 $post->content = $request->content;
 
