@@ -447,7 +447,7 @@ Route::post('u/{user_id}/follow', 'UserController@follow');
 - adiciona método para saber se um usário segue o outro no model User
 ```
 /**
- * Return wether the user is a follower or not.
+ * Return wheter the user is a follower or not.
  *
  * @param  string  $value
  * @return BelongsToMany
