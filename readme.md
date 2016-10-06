@@ -116,6 +116,7 @@ php artisan make:auth
 
 - testar login e registro (registrar um usuário)
 - testar logout
+- alterar nome do app (padrão é 'Laravel')
 
 ### O controller PostController
 - criar PostController
@@ -200,14 +201,14 @@ public function __construct() {
                         @foreach ($posts as $post)
                             <div class="media">
                                 <div class="media-left media-middle">
-                                    <a href="#">
-                                        <img class="media-object" src="{{ $post->user->gravatar_url }}" alt="Profile pic...">
+                                    <a href="{{ url('u/' . $post->user->username ) }}">
+                                        <img class="media-object" src="{{ $post->user->gravatar_url }}" alt="foto de perfil de {{ $post->user->name }}">
                                     </a>
                                 </div>
                                 <div class="media-body">
                                     <h3 class="media-heading">{{ $post->content }}</h3>
                                     <p>
-                                        <a href="#">{{ $post->created_at->diffForHumans() }}</a> by <a href="#">{{ '@' . $post->user->username }}</a>
+                                        <a href="{{ url('post/' . $post->id ) }}">{{ $post->created_at->diffForHumans() }}</a> by <a href="{{ url('u/' . $post->user->username ) }}">{{ '@' . $post->user->username }}</a>
                                     </p>
                                 </div>
                             </div>
@@ -257,3 +258,32 @@ public function user() {
     return $this->belongsTo('App\User');
 }
 ```
+
+# Formulários, Validação, ORM
+- criar rota POST para /post
+```
+Route::post('/post', 'PostController@store');
+```
+
+- adicionar validacao ao controller
+```
+$this->validate($request, [
+    'content' => 'required|min:3|max:140', // limite de 140 caracteres
+]);
+```
+
+- criar e armazenar tweet
+```
+use Auth;
+```
+
+```
+$post = new Post();
+$post->content = $request->content;
+
+Auth::user()->posts()->save($post);
+
+return redirect()->back();
+```
+
+- mostrar funcionando

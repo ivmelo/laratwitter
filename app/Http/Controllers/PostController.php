@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Post;
+use Auth;
 
 class PostController extends Controller
 {
@@ -46,7 +47,16 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request, [
+            'content' => 'required|min:3|max:140', // limite de 140 caracteres
+        ]);
+
+        $post = new Post();
+        $post->content = $request->content;
+
+        Auth::user()->posts()->save($post);
+
+        return redirect()->back();
     }
 
     /**

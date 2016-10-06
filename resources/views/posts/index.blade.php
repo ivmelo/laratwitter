@@ -22,14 +22,14 @@
                         @foreach ($posts as $post)
                             <div class="media">
                                 <div class="media-left media-middle">
-                                    <a href="#">
-                                        <img class="media-object" src="{{ $post->user->gravatar_url }}" alt="Profile pic...">
+                                    <a href="{{ url('u/' . $post->user->username ) }}">
+                                        <img class="media-object" src="{{ $post->user->gravatar_url }}" alt="foto de perfil de {{ $post->user->name }}">
                                     </a>
                                 </div>
                                 <div class="media-body">
                                     <h3 class="media-heading">{{ $post->content }}</h3>
                                     <p>
-                                        <a href="#">{{ $post->created_at->diffForHumans() }}</a> by <a href="#">{{ '@' . $post->user->username }}</a>
+                                        <a href="{{ url('post/' . $post->id ) }}">{{ $post->created_at->diffForHumans() }}</a> by <a href="{{ url('u/' . $post->user->username ) }}">{{ '@' . $post->user->username }}</a>
                                     </p>
                                 </div>
                             </div>
