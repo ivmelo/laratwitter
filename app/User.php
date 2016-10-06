@@ -57,6 +57,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the users who are being followed by the current.
+     *
+     * @param  string  $value
+     * @return BelongsToMany
+     */
+    public function following() {
+        return $this->belongsToMany('App\User', 'followers', 'follower_user_id', 'user_id');
+    }
+
+    /**
      * Return wether the user is a follower or not.
      *
      * @param  string  $value

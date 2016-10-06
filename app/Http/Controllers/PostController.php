@@ -22,10 +22,18 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::with('user')->orderby('updated_at', 'desc')->get();
+        $users = [];
 
-        // return response()->json($posts->first(), 200);
-        // return response()->json($posts, 200);
+        array_push($users, Auth::user()->id);
+
+        foreach (Auth::user()->following as $user) {
+            array_push($users, $user->id);
+        }
+
+        $posts = Post::with('user')->whereIn('user_id', $users)
+            ->orderby('updated_at', 'desc')->get();
+
+
         return view('posts.index', compact('posts'));
     }
 

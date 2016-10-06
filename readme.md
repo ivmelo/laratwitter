@@ -116,6 +116,11 @@ php artisan make:auth
 - testar logout
 - alterar nome do app (padrão é 'Laravel')
 
+- remover nome "laravel" e por "laratwitter" no config/app.php
+```
+'name' => 'laratwitter',
+```
+
 ## O controller PostController
 - criar PostController
 ```
@@ -241,6 +246,11 @@ public function getGravatarUrlAttribute()
 }
 ```
 
+- definir a rota / para ver os posts
+```
+Route::get('/', 'PostController@index');
+```
+
 ## Relacionamentos (ORM)
 - mostrar relacionamentos user <-> post e adicionar no model user
 ```
@@ -289,7 +299,7 @@ return redirect()->back();
 $posts = Post::with('user')->orderby('updated_at', 'desc')->get();
 ```
 
-# Perfil de Usuário
+## Perfil de Usuário
 - criar controller de usuário
 ```
 php artisan make:controller UserController --resource
@@ -455,24 +465,28 @@ $user_to_follow->followers()->attach(Auth::user());
 return redirect()->back();
 ```
 
-- adiciona botão com condicional para seguir, e dar unfollow na view (users/show.blade.php)
+- adiciona botão com condicional para seguir, e dar unfollow na view (users/show.blade.php), além de verificar se o usuário está logado
 ```
-@if ($user->id != Auth::user()->id)
-    @if ($user->isFollower(Auth::user()->id))
-        <form action="{{ url('u/' . $user->id . '/unfollow') }}" method="post">
-            {{ csrf_field() }}
-            <button type="submit" name="button" class="btn btn-block btn-primary">Following</button>
-        </form>
-    @else
-        <form action="{{ url('u/' . $user->id . '/follow') }}" method="post">
-            {{ csrf_field() }}
-            <button type="submit" name="button" class="btn btn-block btn-primary">Follow</button>
-        </form>
+@if (Auth::user())
+    @if ($user->id != Auth::user()->id)
+        @if ($user->isFollower(Auth::user()->id))
+            <form action="{{ url('u/' . $user->id . '/unfollow') }}" method="post">
+                {{ csrf_field() }}
+                <button type="submit" name="button" class="btn btn-block btn-primary">Following</button>
+            </form>
+        @else
+            <form action="{{ url('u/' . $user->id . '/follow') }}" method="post">
+                {{ csrf_field() }}
+                <button type="submit" name="button" class="btn btn-block btn-primary">Follow</button>
+            </form>
+        @endif
     @endif
 @endif
 ```
 
-- cria rota e implementa ação de unfollow
+## Botão de Unfollow
+
+- cria rota e implementa ação de unfollow no UserController
 ```
 Route::post('u/{user_id}/unfollow', 'UserController@unfollow');
 ```
@@ -497,3 +511,48 @@ public function unfollow($user_id)
     return redirect()->back();
 }
 ```
+
+- adiciona contagem de seguidores a página do usário
+```
+<h4 style="margin-top: 0px">{{ $user->followers->count() }} {{ str_plural('follower', $user->followers->count())}}. Member since {{ $user->created_at->format('d/m/y') }}.</h4>
+```
+
+## Ajustes Gerais e Finalização
+- ver apenas posts de quem você está seguindo
+
+- criar método para pegar quem você segue
+```
+/**
+ * Get the users who are being followed by the current.
+ *
+ * @param  string  $value
+ * @return BelongsToMany
+ */
+public function following() {
+    return $this->belongsToMany('App\User', 'followers', 'follower_user_id', 'user_id');
+}
+```
+
+- atualizar index do PostController
+```
+public function index()
+{
+    $users = [];
+
+    array_push($users, Auth::user()->id);
+
+    foreach (Auth::user()->following as $user) {
+        array_push($users, $user->id);
+    }
+
+    $posts = Post::with('user')->whereIn('user_id', $users)
+        ->orderby('updated_at', 'desc')->get();
+
+
+    return view('posts.index', compact('posts'));
+}
+```
+
+## The End!
+- Tutorial por: Ivanilson Melo.
+- Apoio: Duarte Fernandes, Jean Jar, Daniel Souza.

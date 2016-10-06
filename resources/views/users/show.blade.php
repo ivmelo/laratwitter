@@ -14,20 +14,22 @@
                         <div class="col-md-8">
                             <h2 style="margin-top: 0px">{{ $user->name }}</h2>
                             <h3 style="margin-top: 0px">{{ '@' . $user->username }}</h3>
-                            <p style="margin-top: 0px">Member since {{ $user->created_at->format('d/m/y') }}.</p>
+                            <h4 style="margin-top: 0px">{{ $user->followers->count() }} {{ str_plural('follower', $user->followers->count())}}. Member since {{ $user->created_at->format('d/m/y') }}.</h4>
                         </div>
                         <div class="col-md-2">
-                            @if ($user->id != Auth::user()->id)
-                                @if ($user->isFollower(Auth::user()->id))
-                                    <form action="{{ url('u/' . $user->id . '/unfollow') }}" method="post">
-                                        {{ csrf_field() }}
-                                        <button type="submit" name="button" class="btn btn-block btn-primary">Following</button>
-                                    </form>
-                                @else
-                                    <form action="{{ url('u/' . $user->id . '/follow') }}" method="post">
-                                        {{ csrf_field() }}
-                                        <button type="submit" name="button" class="btn btn-block btn-primary">Follow</button>
-                                    </form>
+                            @if (Auth::user())
+                                @if ($user->id != Auth::user()->id)
+                                    @if ($user->isFollower(Auth::user()->id))
+                                        <form action="{{ url('u/' . $user->id . '/unfollow') }}" method="post">
+                                            {{ csrf_field() }}
+                                            <button type="submit" name="button" class="btn btn-block btn-primary">Following</button>
+                                        </form>
+                                    @else
+                                        <form action="{{ url('u/' . $user->id . '/follow') }}" method="post">
+                                            {{ csrf_field() }}
+                                            <button type="submit" name="button" class="btn btn-block btn-primary">Follow</button>
+                                        </form>
+                                    @endif
                                 @endif
                             @endif
                         </div>
