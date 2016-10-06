@@ -190,11 +190,6 @@ public function __construct() {
 }
 ```
 
-- redirecionar para / ao fazer login (Alterar LoginController & Register Controller)
-```
-protected $redirectTo = '/';
-```
-
 ## Views
 - mostrar layouts/app.blade.php e explicar
 - criar diretório views/posts
@@ -274,6 +269,10 @@ public function getGravatarUrlAttribute()
 Route::get('/', 'PostController@index');
 ```
 
+- redirecionar para / ao fazer login (Alterar LoginController & Register Controller)
+```
+protected $redirectTo = '/';
+```
 
 ## Formulários, Validação, ORM
 - criar rota POST para /post
