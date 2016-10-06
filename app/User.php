@@ -27,18 +27,46 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    public function posts() {
-        return $this->hasMany('App\Post');
-    }
-
     /**
      * Get the user's gravatar picture.
      *
-     * @param  string  $value
      * @return string
      */
     public function getGravatarUrlAttribute()
     {
         return 'https://www.gravatar.com/avatar/' . md5(strtolower($this->email));
     }
+
+    /**
+     * Get posts belonging to this user.
+     *
+     * @return HasMany
+     */
+    public function posts() {
+        return $this->hasMany('App\Post');
+    }
+
+    /**
+     * Get this user's followers.
+     *
+     * @param  string  $value
+     * @return BelongsToMany
+     */
+    public function followers() {
+        return $this->belongsToMany('App\User', 'followers', 'user_id', 'follower_user_id');
+    }
+
+    /**
+     * Return wether the user is a follower or not.
+     *
+     * @param  string  $value
+     * @return BelongsToMany
+     */
+    public function isFollower($id) {
+        if ($this->followers->where('id', '=', $id)->count() > 0) {
+            return true;
+        }
+        return false;
+    }
+
 }

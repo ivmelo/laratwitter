@@ -5,16 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
-use App\Post;
+use App\User;
 use Auth;
 
-class PostController extends Controller
+class UserController extends Controller
 {
-
-    public function __construct() {
-        $this->middleware('auth');
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -22,11 +17,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::with('user')->orderby('updated_at', 'desc')->get();
-
-        // return response()->json($posts->first(), 200);
-        // return response()->json($posts, 200);
-        return view('posts.index', compact('posts'));
+        //
     }
 
     /**
@@ -47,27 +38,19 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'content' => 'required|min:3|max:140', // limite de 140 caracteres
-        ]);
-
-        $post = new Post();
-        $post->content = $request->content;
-
-        Auth::user()->posts()->save($post);
-
-        return redirect()->back();
+        //
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int  $username
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($username)
     {
-        //
+        $user = User::where('username', '=', $username)->firstOrFail();
+        return view('users.show', compact('user'));
     }
 
     /**
@@ -102,5 +85,24 @@ class PostController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * Follow a user.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function follow($user_id)
+    {
+        $user_to_follow = User::findOrFail($user_id);
+
+        if ($user_to_follow->isFollower(Auth::user()->id)) {
+            return redirect()->back();
+        }
+
+        $user_to_follow->followers()->attach(Auth::user());
+
+        return redirect()->back();
     }
 }

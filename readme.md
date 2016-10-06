@@ -15,7 +15,7 @@ homestead ssh
 cd Code
 laravel new twitter
 ```
-O laravel vai criar o proketo, instalar as dependências e configurar usando o arquivo .env
+O laravel vai criar o projeto, instalar as dependências e configurar usando o arquivo .env
 
 - editar para apontar para o app
 ```
@@ -41,12 +41,10 @@ homestead provision
 | id             | id         | id               |
 | name           | user_id    | user_id          |
 | username       | content    | follower_user_id |
-| email          | created_at | created_at       |
-| password       | updated_at | updated_at       |
-| remember_token |            |                  |
-| created_at     |            |                  |
-| updated_at     |            |                  |
+| email          |            |                  |
+| password       |            |                  |
 
+Lembrar do created_at, updated_at e remember_token na tabela users.
 
 ## Models - User e Post
 
@@ -180,47 +178,46 @@ public function __construct() {
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <form action="{{ url('post') }}" method="post">
-                        {{ csrf_field() }}
-                        <div class="form-group">
-                            <textarea class="form-control" name="content" rows="2" placeholder="Your complaint goes here..."></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-default pull-right clearfix" name="button">Post</button>
-                        <div class="clearfix"></div>
-                    </form>
-                </div>
-
-                <div class="panel-body">
-
-                    @if ($posts->count() > 1)
-                        @foreach ($posts as $post)
-                            <div class="media">
-                                <div class="media-left media-middle">
-                                    <a href="{{ url('u/' . $post->user->username ) }}">
-                                        <img class="media-object" src="{{ $post->user->gravatar_url }}" alt="foto de perfil de {{ $post->user->name }}">
-                                    </a>
-                                </div>
-                                <div class="media-body">
-                                    <h3 class="media-heading">{{ $post->content }}</h3>
-                                    <p>
-                                        <a href="{{ url('post/' . $post->id ) }}">{{ $post->created_at->diffForHumans() }}</a> by <a href="{{ url('u/' . $post->user->username ) }}">{{ '@' . $post->user->username }}</a>
-                                    </p>
-                                </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <form action="{{ url('post') }}" method="post">
+                            {{ csrf_field() }}
+                            <div class="form-group">
+                                <textarea class="form-control" name="content" rows="2" placeholder="Your complaint goes here...">{{ old('content') }}</textarea>
                             </div>
-                        @endforeach
-                    @else
-                        <h2>No posts yet.</h2>
-                    @endif
+                            <button type="submit" class="btn btn-primary btn-sm pull-right clearfix" name="button">Post</button>
+                            <div class="clearfix"></div>
+                        </form>
+                    </div>
+
+                    <div class="panel-body">
+                        @if ($posts->count() > 1)
+                            @foreach ($posts as $post)
+                                <div class="media">
+                                    <div class="media-left media-middle">
+                                        <a href="{{ url('u/' . $post->user->username ) }}">
+                                            <img class="media-object" src="{{ $post->user->gravatar_url }}" alt="foto de perfil de {{ $post->user->name }}">
+                                        </a>
+                                    </div>
+                                    <div class="media-body">
+                                        <h3 class="media-heading">{{ $post->content }}</h3>
+                                        <p>
+                                            <a href="{{ url('post/' . $post->id ) }}">{{ $post->created_at->diffForHumans() }}</a> by <a href="{{ url('u/' . $post->user->username ) }}">{{ '@' . $post->user->username }}</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <h2>No posts yet.</h2>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 @endsection
 ```
 
@@ -287,3 +284,190 @@ return redirect()->back();
 ```
 
 - mostrar funcionando
+- alterar ordem de exibição dos tweets (mais recente primeiro)
+```
+$posts = Post::with('user')->orderby('updated_at', 'desc')->get();
+```
+
+# Perfil de Usuário
+- criar controller de usuário
+```
+php artisan make:controller UserController --resource
+```
+
+- criar rota para mostrar usuário
+```
+Route::get('/u/{username}', 'UserController@show');
+```
+
+- pegar usuário por username e mostrar na tela
+```
+public function show($username)
+{
+    $user = User::where('username', '=', $username)->firstOrFail();
+    return view('users.show', compact('user'));
+}
+```
+
+- criar view para mostrar detalhes de usuário (views/users/show.blade.php)
+```
+@extends('layouts.app')
+
+@section('content')
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+
+                        <div class="row">
+                            <div class="col-md-2">
+                                <img src="{{ $user->gravatar_url }}" alt="Foto de perfil de {{ $user->name }}" class="img-circle" style="width: 100%"/>
+                            </div>
+                            <div class="col-md-8">
+                                <h2 style="margin-top: 0px">{{ $user->name }}</h2>
+                                <h3 style="margin-top: 0px">{{ '@' . $user->username }}</h3>
+                                <p style="margin-top: 0px">Member since {{ $user->created_at->format('d/m/y') }}.</p>
+                            </div>
+                            <div class="col-md-2">
+                                @if ($user->id != Auth::user()->id)
+                                <form action="{{ url('u/' . $user->id . '/follow') }}" method="post">
+                                    {{ csrf_field() }}
+                                    <button type="submit" name="button" class="btn btn-block btn-primary">Follow</button>
+                                </form>
+                                @endif
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="panel-body">
+                        @if ($user->posts->count() > 1)
+                            @foreach ($user->posts as $post)
+                                <div class="media">
+                                    <div class="media-left media-middle">
+                                        <a href="{{ url('u/' . $post->user->username ) }}">
+                                            <img class="media-object" src="{{ $post->user->gravatar_url }}" alt="foto de perfil de {{ $post->user->name }}">
+                                        </a>
+                                    </div>
+                                    <div class="media-body">
+                                        <h3 class="media-heading">{{ $post->content }}</h3>
+                                        <p>
+                                            <a href="{{ url('post/' . $post->id ) }}">{{ $post->created_at->diffForHumans() }}</a> by <a href="{{ url('u/' . $post->user->username ) }}">{{ '@' . $post->user->username }}</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <h2 class="text-center">No posts yet.</h2>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+```
+
+### Relação Muitos para Muitos e Botão de Seguir
+- criar tabela followers
+```
+php artisan make:migration create_followers_table
+```
+
+- adicionar campos necessários a migration
+```
+/**
+ * Run the migrations.
+ *
+ * @return void
+ */
+public function up()
+{
+    Schema::create('followers', function (Blueprint $table) {
+        $table->increments('id');
+        $table->integer('user_id');
+        $table->integer('follower_user_id');
+        $table->timestamps();
+    });
+}
+
+/**
+ * Reverse the migrations.
+ *
+ * @return void
+ */
+public function down()
+{
+    Schema::drop('followers');
+}
+```
+
+- executar a migração
+```
+php artisan migrate
+```
+
+- definir relacionamento many to many no model user
+```
+/**
+ * Get this user's followers.
+ *
+ * @param  string  $value
+ * @return BelongsToMany
+ */
+public function followers() {
+    return $this->belongsToMany('App\User', 'followers', 'user_id', 'follower_user_id');
+}
+```
+
+- adicionar a rota para fazer o post request para follow
+```
+Route::post('u/{user_id}/follow', 'UserController@follow');
+```
+
+- adiciona método para saber se um usário segue o outro no model User
+```
+/**
+ * Return wether the user is a follower or not.
+ *
+ * @param  string  $value
+ * @return BelongsToMany
+ */
+public function isFollower($id) {
+    if ($this->followers->where('id', '=', $id)->count() > 0) {
+        return true;
+    }
+    return false;
+}
+```
+
+- adiciona método follow no UserController
+```
+$user_to_follow = User::findOrFail($user_id);
+
+if ($user_to_follow->isFollower(Auth::user()->id)) {
+    return redirect()->back();
+}
+
+$user_to_follow->followers()->attach(Auth::user());
+
+return redirect()->back();
+```
+
+- adiciona botão com condicional para seguir, e dar unfollow
+```
+@if ($user->id != Auth::user()->id)
+    @if ($user->isFollower(Auth::user()->id))
+        <form action="{{ url('u/' . $user->id . '/unfollow') }}" method="post">
+            {{ csrf_field() }}
+            <button type="submit" name="button" class="btn btn-block btn-primary">Following</button>
+        </form>
+    @else
+        <form action="{{ url('u/' . $user->id . '/follow') }}" method="post">
+            {{ csrf_field() }}
+            <button type="submit" name="button" class="btn btn-block btn-primary">Follow</button>
+        </form>
+    @endif
+@endif
+```
