@@ -145,6 +145,21 @@ return response()->json($posts, 200);
 Route::get('/post', 'PostController@index');
 ```
 
+## Relacionamentos (ORM)
+- mostrar relacionamentos user <-> post e adicionar no model user
+```
+public function posts() {
+    return $this->hasMany('App\Post');
+}
+```
+
+- adicionar no model post
+```
+public function user() {
+    return $this->belongsTo('App\User');
+}
+```
+
 ## Tinker
 - breve explicação sobre o tinker
 - criar dois posts usando o tinker
@@ -233,6 +248,9 @@ protected $redirectTo = '/';
 
 - alterar o index do PostController para retornar a view
 ```
+// Fazer eager loading do 'user' para pegar os relacionamentos.
+$posts = Post::with('user')->get();
+
 // return response()->json($posts, 200);
 return view('posts.index', compact('posts'));
 ```
@@ -256,20 +274,6 @@ public function getGravatarUrlAttribute()
 Route::get('/', 'PostController@index');
 ```
 
-## Relacionamentos (ORM)
-- mostrar relacionamentos user <-> post e adicionar no model user
-```
-public function posts() {
-    return $this->hasMany('App\Post');
-}
-```
-
-- adicionar no model post
-```
-public function user() {
-    return $this->belongsTo('App\User');
-}
-```
 
 ## Formulários, Validação, ORM
 - criar rota POST para /post
