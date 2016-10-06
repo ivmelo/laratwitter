@@ -48,8 +48,6 @@ $ homestead provision
 | email          |            |                  |
 | password       |            |                  |
 | remember_token |            |                  |
-|                |            |                  |
-|                |            |                  |
 
 
 ## Models - User e Post
@@ -313,6 +311,8 @@ $this->validate($request, [
 
 ```php
 use Auth;
+
+// ...
 
 $post = new Post();
 $post->content = $request->content;
