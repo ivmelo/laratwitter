@@ -476,6 +476,24 @@ return redirect()->back();
 ```
 Route::post('u/{user_id}/unfollow', 'UserController@unfollow');
 ```
-```
 
+```
+/**
+ * Unfollow a user.
+ *
+ * @param  int  $user_id
+ * @return \Illuminate\Http\Response
+ */
+public function unfollow($user_id)
+{
+    $user_to_unfollow = User::findOrFail($user_id);
+
+    if ($user_to_unfollow->isFollower(Auth::user()->id)) {
+        $user_to_unfollow->followers()->detach(Auth::user());
+
+        return redirect()->back();
+    }
+
+    return redirect()->back();
+}
 ```
