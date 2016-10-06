@@ -7,7 +7,7 @@ Feito em Laravel 5.3
 
 Para referência, abaixo estão os passos seguidos para o desenvolvimento do app.
 
-### Criação do Projeto e Configuração Inicial
+## Criação do Projeto e Configuração Inicial
 
 ```
 homestead up
@@ -34,7 +34,7 @@ homestead provision
 - visitar laratwitter.app e ver o resultado
 - mostrar o arquivo de rotas e fazer alguma alteração para mostrar resultado
 
-### Tabelas
+## Tabelas
 
 | users          | posts      | followers        |
 | -------------- | ---------- | ---------------- |
@@ -48,7 +48,7 @@ homestead provision
 | updated_at     |            |                  |
 
 
-### Models - User e Post
+## Models - User e Post
 
 - mostrar model user e criar o de post
 User (already present)
@@ -82,7 +82,7 @@ protected $fillable = ['content', 'user_id'];
 php artisan migrate
 ```
 
-### Autenticação
+## Autenticação
 - executar comando de scaffold de autenticação
 ```
 php artisan make:auth
@@ -118,7 +118,7 @@ php artisan make:auth
 - testar logout
 - alterar nome do app (padrão é 'Laravel')
 
-### O controller PostController
+## O controller PostController
 - criar PostController
 ```
 php artisan make:controller PostController --resource
@@ -135,14 +135,14 @@ $posts = Post::all();
 return response()->json($posts, 200);
 ```
 
-### Rotas
+## Rotas
 
 - adicionar uma rota que mostre os posts ao arquivo routes/web.php
 ```
 Route::get('/post', 'PostController@index');
 ```
 
-### Tinker
+## Tinker
 - breve explicação sobre o tinker
 - criar dois posts usando o tinker
 ```
@@ -164,7 +164,7 @@ exit
 ```
 - mostrar posts sendo retornados no /post
 
-### Segurança
+## Segurança
 - adicionar middleware auth ao ```__construct()``` do PostController, e dar uma breve explicação
 ```
 public function __construct() {
@@ -172,7 +172,7 @@ public function __construct() {
 }
 ```
 
-# Views
+## Views
 - mostrar layouts/app.blade.php e explicar
 - criar diretório views/posts
 - arquivo views/posts/index.blade.php
@@ -244,7 +244,7 @@ public function getGravatarUrlAttribute()
 }
 ```
 
-# Relacionamentos (ORM)
+## Relacionamentos (ORM)
 - mostrar relacionamentos user <-> post e adicionar no model user
 ```
 public function posts() {
@@ -259,7 +259,7 @@ public function user() {
 }
 ```
 
-# Formulários, Validação, ORM
+## Formulários, Validação, ORM
 - criar rota POST para /post
 ```
 Route::post('/post', 'PostController@store');
