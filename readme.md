@@ -1,27 +1,259 @@
-# Laravel PHP Framework
+# laratwitter
+Aplicativo de exemplo para o mini curso de Laravel do LAIS-HUOL.
 
-[![Build Status](https://travis-ci.org/laravel/framework.svg)](https://travis-ci.org/laravel/framework)
-[![Total Downloads](https://poser.pugx.org/laravel/framework/d/total.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Stable Version](https://poser.pugx.org/laravel/framework/v/stable.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/framework/v/unstable.svg)](https://packagist.org/packages/laravel/framework)
-[![License](https://poser.pugx.org/laravel/framework/license.svg)](https://packagist.org/packages/laravel/framework)
+Basicamente, um mini clone do twitter com funcionalidades básicas (logar, registrar, postar, seguir...).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as authentication, routing, sessions, queueing, and caching.
+Feito em Laravel 5.3
 
-Laravel is accessible, yet powerful, providing tools needed for large, robust applications. A superb inversion of control container, expressive migration system, and tightly integrated unit testing support give you the tools you need to build any application with which you are tasked.
+Para referência, abaixo estão os passos seguidos para o desenvolvimento do app.
 
-## Official Documentation
+### Criação do Projeto e Configuração Inicial
 
-Documentation for the framework can be found on the [Laravel website](http://laravel.com/docs).
+```
+homestead up
+homestead ssh
+cd Code
+laravel new twitter
+```
+O laravel vai criar o proketo, instalar as dependências e configurar usando o arquivo .env
 
-## Contributing
+- editar para apontar para o app
+```
+~/homestead/Homestead.yaml
+/etc/routes
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](http://laravel.com/docs/contributions).
+- criar banco de dados laratwitter
+- editar e mostrar arquivo .env
+- adicionar creadenciais do banco de dados ao .env
 
-## Security Vulnerabilities
+- rodar homestear provision para atualizar as configurações
+```
+homestead provision
+```
+- visitar laratwitter.app e ver o resultado
+- mostrar o arquivo de rotas e fazer alguma alteração para mostrar resultado
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
+### Tabelas
 
-## License
+| users          | posts      | followers        |
+| -------------- | ---------- | ---------------- |
+| id             | id         | id               |
+| name           | user_id    | user_id          |
+| username       | content    | follower_user_id |
+| email          | created_at | created_at       |
+| password       | updated_at | updated_at       |
+| remember_token |            |                  |
+| created_at     |            |                  |
+| updated_at     |            |                  |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
+
+### Models - User e Post
+
+- mostrar model user e criar o de post
+User (already present)
+Post
+
+- adicionar username na migration users
+```
+$table->string('username')->unique();
+```
+- adicionar ```username``` ao array fillable no model User
+
+
+- criar model Post e migration
+```
+php artisan make:model Post --migration
+```
+
+- adicionar colunas content e user_id na migration
+```
+$table->text('content');
+$table->integer('user_id');
+```
+
+- adicionar content e user_id ao fillable do Post
+```
+protected $fillable = ['content', 'user_id'];
+```
+
+- migrar
+```
+php artisan migrate
+```
+
+### Autenticação
+- executar comando de scaffold de autenticação
+```
+php artisan make:auth
+```
+
+- adicionar validação de username ao RegisterController
+```
+'username' => 'required|min:5|unique:users'
+```
+- adicionar username ao User::create do RegisterControler
+```
+'username' => $data['username']
+```
+
+- adicionar username ao register.blade.php
+```
+<div class="form-group{{ $errors->has('username') ? ' has-error' : '' }}">
+    <label for="username" class="col-md-4 control-label">Username</label>
+
+    <div class="col-md-6">
+        <input id="username" type="text" class="form-control" name="username" value="{{ old('username') }}" required>
+
+        @if ($errors->has('username'))
+            <span class="help-block">
+                <strong>{{ $errors->first('username') }}</strong>
+            </span>
+        @endif
+    </div>
+</div>
+```
+
+- testar login e registro (registrar um usuário)
+- testar logout
+
+### O controller PostController
+- criar PostController
+```
+php artisan make:controller PostController --resource
+```
+
+- mostrar estrutura do controller e retornar todos os posts
+- alterar o controller para pegar todos os posts e mostrar na tela
+```
+use App\Post;
+```
+
+```
+$posts = Post::all();
+return response()->json($posts, 200);
+```
+
+### Rotas
+
+- adicionar uma rota que mostre os posts ao arquivo routes/web.php
+```
+Route::get('/post', 'PostController@index');
+```
+
+### Tinker
+- breve explicação sobre o tinker
+- criar dois posts usando o tinker
+```
+php artisan tinker
+
+$post = new App\Post();
+$post->content = 'Participando do tutorial de Laravel do LAIS HUOL';
+$post->user_id = 1;
+$post->save();
+
+$post2 = new App\Post;
+$post2->content = 'Quero cafeeeeeeeeeeee...';
+$post2->user_id = 1;
+$post2->save();
+
+App\Post::all();
+
+exit
+```
+- mostrar posts sendo retornados no /post
+
+### Segurança
+- adicionar middleware auth ao ```__construct()``` do PostController, e dar uma breve explicação
+```
+public function __construct() {
+    $this->middleware('auth');
+}
+```
+
+# Views
+- mostrar layouts/app.blade.php e explicar
+- criar diretório views/posts
+- arquivo views/posts/index.blade.php
+```
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <form action="{{ url('post') }}" method="post">
+                        {{ csrf_field() }}
+                        <div class="form-group">
+                            <textarea class="form-control" name="content" rows="2" placeholder="Your complaint goes here..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-default pull-right clearfix" name="button">Post</button>
+                        <div class="clearfix"></div>
+                    </form>
+                </div>
+
+                <div class="panel-body">
+
+                    @if ($posts->count() > 1)
+                        @foreach ($posts as $post)
+                            <div class="media">
+                                <div class="media-left media-middle">
+                                    <a href="#">
+                                        <img class="media-object" src="{{ $post->user->gravatar_url }}" alt="Profile pic...">
+                                    </a>
+                                </div>
+                                <div class="media-body">
+                                    <h3 class="media-heading">{{ $post->content }}</h3>
+                                    <p>
+                                        <a href="#">{{ $post->created_at->diffForHumans() }}</a> by <a href="#">{{ '@' . $post->user->username }}</a>
+                                    </p>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <h2>No posts yet.</h2>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+```
+
+- alterar o index do PostController para retornar a view
+```
+// return response()->json($posts, 200);
+return view('posts.index', compact('posts'));
+```
+
+- adicionar acessor no model User para pegar a imagem do gravatar
+```
+/**
+ * Get the user's gravatar picture url.
+ *
+ * @param  string  $value
+ * @return string
+ */
+public function getGravatarUrlAttribute()
+{
+    return 'https://www.gravatar.com/avatar/' . md5(strtolower($this->email));
+}
+```
+
+# Relacionamentos (ORM)
+- mostrar relacionamentos user <-> post e adicionar no model user
+```
+public function posts() {
+    return $this->hasMany('App\Post');
+}
+```
+
+- adicionar no model post
+```
+public function user() {
+    return $this->belongsTo('App\User');
+}
+```

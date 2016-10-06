@@ -26,4 +26,19 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function posts() {
+        return $this->hasMany('App\Post');
+    }
+
+    /**
+     * Get the user's gravatar picture.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    public function getGravatarUrlAttribute()
+    {
+        return 'https://www.gravatar.com/avatar/' . md5(strtolower($this->email));
+    }
 }
