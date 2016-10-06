@@ -20,6 +20,7 @@ Route::post('/post', 'PostController@store');
 
 Route::get('/u/{username}', 'UserController@show');
 Route::post('u/{user_id}/follow', 'UserController@follow');
+Route::post('u/{user_id}/unfollow', 'UserController@unfollow');
 
 Auth::routes();
 

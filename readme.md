@@ -455,7 +455,7 @@ $user_to_follow->followers()->attach(Auth::user());
 return redirect()->back();
 ```
 
-- adiciona botão com condicional para seguir, e dar unfollow
+- adiciona botão com condicional para seguir, e dar unfollow na view (users/show.blade.php)
 ```
 @if ($user->id != Auth::user()->id)
     @if ($user->isFollower(Auth::user()->id))
@@ -470,4 +470,12 @@ return redirect()->back();
         </form>
     @endif
 @endif
+```
+
+- cria rota e implementa ação de unfollow
+```
+Route::post('u/{user_id}/unfollow', 'UserController@unfollow');
+```
+```
+
 ```

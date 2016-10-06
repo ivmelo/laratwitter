@@ -90,7 +90,7 @@ class UserController extends Controller
     /**
      * Follow a user.
      *
-     * @param  int  $id
+     * @param  int  $user_id
      * @return \Illuminate\Http\Response
      */
     public function follow($user_id)
@@ -98,10 +98,31 @@ class UserController extends Controller
         $user_to_follow = User::findOrFail($user_id);
 
         if ($user_to_follow->isFollower(Auth::user()->id)) {
+            // User is already a follower, do nothing.
             return redirect()->back();
         }
 
+        // User is not a follower, attach them to the desired user.
         $user_to_follow->followers()->attach(Auth::user());
+
+        return redirect()->back();
+    }
+
+    /**
+     * Unfollow a user.
+     *
+     * @param  int  $user_id
+     * @return \Illuminate\Http\Response
+     */
+    public function unfollow($user_id)
+    {
+        $user_to_unfollow = User::findOrFail($user_id);
+
+        if ($user_to_unfollow->isFollower(Auth::user()->id)) {
+            $user_to_unfollow->followers()->detach(Auth::user());
+
+            return redirect()->back();
+        }
 
         return redirect()->back();
     }
