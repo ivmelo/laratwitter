@@ -38,7 +38,7 @@
                 </div>
 
                 <div class="panel-body">
-                    @if ($user->posts->count() > 1)
+                    @if ($user->posts->count() > 0)
                         @foreach ($user->posts as $post)
                             <div class="media">
                                 <div class="media-left media-middle">
