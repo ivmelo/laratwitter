@@ -1,5 +1,7 @@
 # laratwitter
-Aplicativo de exemplo para o mini curso de Laravel do LAIS-HUOL.
+Tutorial Laravel 5.3 para o mini curso Laravel.
+
+Curso ministrado no LAIS-HUOL e na EXPOTEC 2016.
 
 Basicamente, um mini clone do twitter com funcionalidades básicas (logar, registrar, postar, seguir...).
 
@@ -562,5 +564,5 @@ public function index()
 ```
 
 ## The End!
-- Tutorial por: Ivanilson Melo.
-- Apoio: Duarte Fernandes, Jean Jar, Daniel Souza.
+- Tutorial por: [Ivanilson Melo](https://github.com/ivmelo).
+- Apoio: [Duarte Fernandes](https://github.com/duartefq), [Jean Jar](https://github.com/jeanjar), [Daniel Souza](https://github.com/danielsouzaaf).
