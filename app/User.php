@@ -42,7 +42,8 @@ class User extends Authenticatable
      *
      * @return HasMany
      */
-    public function posts() {
+    public function posts()
+    {
         return $this->hasMany('App\Post');
     }
 
@@ -52,7 +53,8 @@ class User extends Authenticatable
      * @param  string  $value
      * @return BelongsToMany
      */
-    public function followers() {
+    public function followers()
+    {
         return $this->belongsToMany('App\User', 'followers', 'user_id', 'follower_user_id');
     }
 
@@ -62,7 +64,8 @@ class User extends Authenticatable
      * @param  string  $value
      * @return BelongsToMany
      */
-    public function following() {
+    public function following()
+    {
         return $this->belongsToMany('App\User', 'followers', 'follower_user_id', 'user_id');
     }
 
@@ -72,11 +75,11 @@ class User extends Authenticatable
      * @param  string  $value
      * @return BelongsToMany
      */
-    public function isFollower($id) {
+    public function isFollower($id)
+    {
         if ($this->followers->where('id', '=', $id)->count() > 0) {
             return true;
         }
         return false;
     }
-
 }
